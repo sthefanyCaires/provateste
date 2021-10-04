@@ -1,0 +1,59 @@
+<%@page import="java.util.Random"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+
+    //condição para as pessoas logadas
+    if (request.getParameter("session-login") != null) {
+        session.setAttribute("session-name", request.getParameter("session-name"));
+        //array para geração dos 60 números aleatórios para cada sessão na hora do logon
+        int numerosAleatorios[] = new int[6];
+        for (int i = 0; i < numerosAleatorios.length; i++) {
+            Random aleatorio = new Random();
+            int valor = aleatorio.nextInt(60) + 1;
+            numerosAleatorios[i] = valor;
+        }
+        application.setAttribute("numeros-aleatorios", numerosAleatorios); //coloca o atributo para os números aleatórios
+        response.sendRedirect(request.getRequestURI()); //impede o redirecionamento
+
+        //condição para as pessoas que fizerem logout
+    } else if (request.getParameter("session-logout") != null) {
+        session.removeAttribute("session-name"); //remove o atributo da pessoa logada
+        int usuarios = (int) application.getAttribute("usuarios");
+        application.setAttribute("usuarios", usuarios - 1); // remove a quantidade de pessoas logadas
+        session.removeAttribute("numeros-aleatorios"); //remove o atributo dos números aleatórios da pessoa que deslogou
+        response.sendRedirect(request.getRequestURI()); //impede o redirecionamento
+    }
+    
+    //quantidade de usuários
+    if (application.getAttribute("usuarios") == null) {
+        application.setAttribute("usuarios", 0); //se não houver nenhum usuário, é atribuido o valor 0
+    }
+    if (request.getParameter("session-login") != null) {
+        int usuarios = (int) application.getAttribute("usuarios");
+        application.setAttribute("usuarios", usuarios + 1); //a cada usuário que logar, será acrescentado mais um
+    }
+    int usuarios = (int) application.getAttribute("usuarios"); //coloca o atributo para a quantidade de pessoas logadas
+
+    String sessionName = (String) session.getAttribute("session-name");
+%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Sthefany Caires</title>
+    </head>
+    <body>
+        <form method="post">
+            <%if (sessionName == null) {%>
+            <input type="text" name="session-name" placeholder="Entre com seu nome:"/>
+            <input type="submit" name="session-login" value="Login"/>
+            <%} else {%>
+            Bem vindo, <%= sessionName%>
+            <input type="submit" name="session-logout" value="Logout"/>
+            <%}%>
+            <br>
+            <a href="index.jsp">Página Inicial</a>
+            <a href="sthefany-caires.jsp">Sobre</a>
+            <a href="sthefany-caires-dica-megasena.jsp">Dica Mega-Sena</a>
+    </body>
+</html>
